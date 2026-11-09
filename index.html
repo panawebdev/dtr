@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Time Record System</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f3f6fb;
+    color: #263238;
+}
+
+.container {
+    max-width: 1250px;
+    margin: auto;
+}
+
+.header {
+    background: #173b67;
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.header h1 { margin: 0 0 8px; }
+.header p { margin: 0; opacity: .85; }
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.06);
+}
+
+h2 { margin-top: 0; color: #173b67; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+label {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+input, select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #ccd5df;
+    border-radius: 7px;
+    font-size: 14px;
+    background: white;
+}
+
+button {
+    border: none;
+    border-radius: 7px;
+    padding: 11px 16px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.btn-primary { background: #1769aa; color: white; }
+.btn-success { background: #218838; color: white; }
+.btn-danger { background: #dc3545; color: white; }
+.btn-secondary { background: #64748b; color: white; }
+.btn-warning { background: #e9a323; color: #222; }
+
+.month-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.month-tabs button {
+    background: #e5eaf0;
+    color: #333;
+}
+
+.month-tabs button.active {
+    background: #173b67;
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.table-header h2 { margin: 0; }
+
+.filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.filters .form-group {
+    min-width: 190px;
+}
+
+.table-wrapper { overflow-x: auto; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+th, td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    font-size: 13px;
+}
+
+th {
+    background: #edf3f9;
+    color: #173b67;
+}
+
+.status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.PRESENT { background: #d4edda; color: #155724; }
+.ABSENT { background: #f8d7da; color: #721c24; }
+.RTW { background: #d1ecf1; color: #0c5460; }
+.RDOT { background: #fff3cd; color: #856404; }
+.RD { background: #e2e3e5; color: #383d41; }
+
+.empty-row {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+}
+
+.month-label {
+    font-weight: bold;
+    color: #173b67;
+    margin-bottom: 12px;
+}
+
+.total-box {
+    background: #edf5ff;
+    padding: 14px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.employee-delete, .small-btn {
+    padding: 7px 10px;
+    margin: 2px;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 18px;
+    margin-top: 25px;
+    color: #64748b;
+    font-size: 13px;
+    border-top: 1px solid #ddd;
+}
+
+@media(max-width: 600px) {
+    body { padding: 10px; }
+    .header, .card { padding: 15px; }
+    .table-header { align-items: stretch; }
+    .filters { width: 100%; }
+    .filters .form-group { flex: 1; min-width: 100%; }
+    .action-buttons button { flex: 1; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>Daily Time Record System</h1>
+        <p>Employee Attendance Monitoring</p>
+    </div>
+
+    <!-- EMPLOYEE REGISTRATION -->
+    <div class="card">
+        <h2>Employee Registration</h2>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Employee Name</label>
+                <input type="text" id="newEmployeeName"
+                       placeholder="Enter employee name">
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-success" onclick="registerEmployee()">
+                Register Employee
+            </button>
+        </div>
+
+        <h3>Registered Employees</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Employee Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ATTENDANCE ENTRY -->
+    <div class="card">
+        <h2 id="formTitle">Attendance Entry</h2>
+
+        <div class="month-label" id="selectedMonthLabel"></div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Employee Name</label>
+                <select id="empName">
+                    <option value="">Select Employee</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="date">
+            </div>
+
+            <div class="form-group">
+                <label>Time In</label>
+                <input type="time" id="timeIn">
+            </div>
+
+            <div class="form-group">
+                <label>Time Out</label>
+                <input type="time" id="timeOut">
+            </div>
+
+            <div class="form-group">
+                <label>Remarks</label>
+                <select id="remarks" onchange="handleRemarksChange()">
+                    <option value="PRESENT">PRESENT</option>
+                    <option value="ABSENT">ABSENT</option>
+                    <option value="RTW">RTW</option>
+                    <option value="RDOT">RDOT</option>
+                    <option value="RD">RD</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="total-box" id="hoursDisplay">
+            Total Hours: 0.00
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-primary" id="saveButton" onclick="addRecord()">
+                Save Attendance
+            </button>
+            <button class="btn-secondary" onclick="clearForm()">
+                Clear Form
+            </button>
+        </div>
+    </div>
+
+    <!-- MONTHLY RECORDS -->
+    <div class="card">
+        <h2>Monthly Attendance Records</h2>
+
+        <div class="month-tabs" id="monthTabs"></div>
+
+        <div class="table-header">
+            <h2 id="recordsTitle">Attendance Records</h2>
+
+            <div class="filters">
+                <div class="form-group">
+                    <label>Filter by Employee</label>
+                    <select id="filterEmployee" onchange="loadRecords()">
+                        <option value="all">All Employees</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Sort Records By</label>
+                    <select id="sortRecords" onchange="loadRecords()">
+                        <option value="dateAsc">Date (Oldest–Newest)</option>
+                        <option value="dateDesc">Date (Newest–Oldest)</option>
+                        <option value="nameAsc">Employee Name (A–Z)</option>
+                        <option value="nameDesc">Employee Name (Z–A)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-success" onclick="exportPDF()">Export PDF</button>
+            <button class="btn-danger" onclick="clearMonth()">Clear Month</button>
+        </div>
+
+        <div class="table-wrapper" style="margin-top:15px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Employee Name</th>
+                        <th>Date</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Total Hours</th>
+                        <th>Remarks</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsBody"></tbody>
+            </table>
+        </div>
+
+        <div class="total-box" id="monthlyTotal">
+            Total Working Hours: 0.00
+        </div>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+    Developed by John Ariel Pana @2026
+</footer>
+
+<script>
+const months = [
+    "January", "February", "March", "April",
+    "May", "June", "July", "August",
+    "September", "October", "November", "December"
+];
+
+let currentMonth = new Date().getMonth();
+let editingRecordId = null;
+
+const EMPLOYEE_KEY = "dtr_registered_employees";
+
+function getEmployees() {
+    return JSON.parse(localStorage.getItem(EMPLOYEE_KEY) || "[]");
+}
+
+function saveEmployees(employees) {
+    localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(employees));
+}
+
+function getRecords() {
+    return JSON.parse(localStorage.getItem("dtr_" + currentMonth) || "[]");
+}
+
+function saveRecords(records) {
+    localStorage.setItem("dtr_" + currentMonth, JSON.stringify(records));
+}
+
+// EMPLOYEE REGISTRATION
+function registerEmployee() {
+    const input = document.getElementById("newEmployeeName");
+    const name = input.value.trim();
+
+    if (!name) {
+        alert("Please enter an employee name.");
+        return;
+    }
+
+    const employees = getEmployees();
+
+    if (employees.some(e => e.toLowerCase() === name.toLowerCase())) {
+        alert("This employee is already registered.");
+        return;
+    }
+
+    employees.push(name);
+    employees.sort((a, b) => a.localeCompare(b));
+
+    saveEmployees(employees);
+    input.value = "";
+    loadEmployees();
+
+    alert("Employee successfully registered!");
+}
+
+function loadEmployees() {
+    const employees = getEmployees();
+    const select = document.getElementById("empName");
+    const tbody = document.getElementById("employeeBody");
+    const filter = document.getElementById("filterEmployee");
+
+    const selectedEmployee = select.value;
+    const selectedFilter = filter.value;
+
+    select.innerHTML = '<option value="">Select Employee</option>';
+    filter.innerHTML = '<option value="all">All Employees</option>';
+
+    employees.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+
+        const filterOption = document.createElement("option");
+        filterOption.value = name;
+        filterOption.textContent = name;
+        filter.appendChild(filterOption);
+    });
+
+    if (employees.includes(selectedEmployee)) {
+        select.value = selectedEmployee;
+    }
+
+    if (employees.includes(selectedFilter)) {
+        filter.value = selectedFilter;
+    }
+
+    tbody.innerHTML = "";
+
+    if (!employees.length) {
+        tbody.innerHTML =
+            '<tr><td colspan="3" class="empty-row">No registered employees.</td></tr>';
+        return;
+    }
+
+    employees.forEach((name, index) => {
+        const tr = document.createElement("tr");
+
+        const number = document.createElement("td");
+        number.textContent = index + 1;
+
+        const nameCell = document.createElement("td");
+        nameCell.textContent = name;
+
+        const action = document.createElement("td");
+        const button = document.createElement("button");
+
+        button.className = "btn-danger employee-delete";
+        button.textContent = "Delete";
+        button.onclick = () => deleteEmployee(name);
+
+        action.appendChild(button);
+        tr.append(number, nameCell, action);
+        tbody.appendChild(tr);
+    });
+}
+
+function deleteEmployee(name) {
+    if (!confirm("Remove " + name + " from the employee list?")) return;
+
+    saveEmployees(getEmployees().filter(e => e !== name));
+    loadEmployees();
+    loadRecords();
+
+    alert("Employee removed. Existing attendance records are retained.");
+}
+
+// MONTH TABS
+function buildMonthTabs() {
+    const container = document.getElementById("monthTabs");
+    container.innerHTML = "";
+
+    months.forEach((month, index) => {
+        const button = document.createElement("button");
+        button.textContent = month.substring(0, 3);
+
+        if (index === currentMonth) button.classList.add("active");
+
+        button.onclick = () => {
+            currentMonth = index;
+            editingRecordId = null;
+            buildMonthTabs();
+            updateMonthLabel();
+            clearForm();
+            loadRecords();
+        };
+
+        container.appendChild(button);
+    });
+}
+
+function updateMonthLabel() {
+    document.getElementById("selectedMonthLabel").textContent =
+        "Selected Month: " + months[currentMonth];
+
+    document.getElementById("recordsTitle").textContent =
+        months[currentMonth] + " Attendance Records";
+}
+
+// REMARKS AND HOURS
+function handleRemarksChange() {
+    const remarks = document.getElementById("remarks").value;
+    const timeIn = document.getElementById("timeIn");
+    const timeOut = document.getElementById("timeOut");
+
+    const disabled = remarks === "ABSENT" || remarks === "RD";
+
+    timeIn.disabled = disabled;
+    timeOut.disabled = disabled;
+
+    if (disabled) {
+        timeIn.value = "";
+        timeOut.value = "";
+    }
+
+    calculateHours();
+}
+
+function calculateDuration(timeIn, timeOut) {
+    if (!timeIn || !timeOut) return 0;
+
+    const [inHour, inMinute] = timeIn.split(":").map(Number);
+    const [outHour, outMinute] = timeOut.split(":").map(Number);
+
+    let start = inHour * 60 + inMinute;
+    let end = outHour * 60 + outMinute;
+
+    if (end <= start) end += 24 * 60;
+
+    return (end - start) / 60;
+}
+
+function calculateHours() {
+    const remarks = document.getElementById("remarks").value;
+    const timeIn = document.getElementById("timeIn").value;
+    const timeOut = document.getElementById("timeOut").value;
+
+    let hours = 0;
+
+    if (remarks !== "ABSENT" && remarks !== "RD") {
+        hours = calculateDuration(timeIn, timeOut);
+    }
+
+    document.getElementById("hoursDisplay").textContent =
+        "Total Hours: " + hours.toFixed(2);
+}
+
+// ADD OR UPDATE ATTENDANCE
+function addRecord() {
+    const name = document.getElementById("empName").value;
+    const date = document.getElementById("date").value;
+    const timeIn = document.getElementById("timeIn").value;
+    const timeOut = document.getElementById("timeOut").value;
+    const remarks = document.getElementById("remarks").value;
+
+    if (!name) {
+        alert("Please select an employee.");
+        return;
+    }
+
+    if (!date) {
+        alert("Please select a date.");
+        return;
+    }
+
+    if (remarks !== "ABSENT" && remarks !== "RD") {
+        if (!timeIn || !timeOut) {
+            alert("Please enter both Time In and Time Out.");
+            return;
+        }
+    }
+
+    const recordMonth = new Date(date + "T00:00:00").getMonth();
+
+    if (recordMonth !== currentMonth) {
+        alert("The selected date does not belong to the selected month.");
+        return;
+    }
+
+    const records = getRecords();
+
+    const duplicate = records.some(record =>
+        record.name.toLowerCase() === name.toLowerCase() &&
+        record.date === date &&
+        record.id !== editingRecordId
+    );
+
+    if (duplicate) {
+        alert("This employee already has a record for this date.");
+        return;
+    }
+
+    const hours = (remarks === "ABSENT" || remarks === "RD")
+        ? 0
+        : calculateDuration(timeIn, timeOut);
+
+    if (editingRecordId) {
+        const index = records.findIndex(r => r.id === editingRecordId);
+
+        if (index !== -1) {
+            records[index] = {
+                ...records[index],
+                name,
+                date,
+                timeIn,
+                timeOut,
+                remarks,
+                hours
+            };
+        }
+
+        editingRecordId = null;
+        document.getElementById("saveButton").textContent = "Save Attendance";
+        document.getElementById("formTitle").textContent = "Attendance Entry";
+    } else {
+        records.push({
+            id: Date.now().toString() + Math.random().toString(16).slice(2),
+            name,
+            date,
+            timeIn,
+            timeOut,
+            remarks,
+            hours
+        });
+    }
+
+    saveRecords(records);
+    loadRecords();
+    clearForm();
+
+    alert("Attendance successfully saved!");
+}
+
+// FILTER AND SORT
+function getSortedRecords() {
+    let records = getRecords();
+
+    const filterEmployee =
+        document.getElementById("filterEmployee").value;
+
+    const sortOption =
+        document.getElementById("sortRecords").value;
+
+    if (filterEmployee !== "all") {
+        records = records.filter(
+            record => record.name === filterEmployee
+        );
+    }
+
+    records.sort((a, b) => {
+        switch (sortOption) {
+            case "nameAsc":
+                return a.name.localeCompare(b.name) ||
+                       a.date.localeCompare(b.date);
+
+            case "nameDesc":
+                return b.name.localeCompare(a.name) ||
+                       a.date.localeCompare(b.date);
+
+            case "dateDesc":
+                return b.date.localeCompare(a.date) ||
+                       a.name.localeCompare(b.name);
+
+            case "dateAsc":
+            default:
+                return a.date.localeCompare(b.date) ||
+                       a.name.localeCompare(b.name);
+        }
+    });
+
+    return records;
+}
+
+// DISPLAY RECORDS
+function loadRecords() {
+    const records = getSortedRecords();
+    const tbody = document.getElementById("recordsBody");
+
+    tbody.innerHTML = "";
+
+    if (!records.length) {
+        tbody.innerHTML =
+            '<tr><td colspan="8" class="empty-row">No attendance records found.</td></tr>';
+
+        document.getElementById("monthlyTotal").textContent =
+            "Total Working Hours: 0.00";
+
+        return;
+    }
+
+    let totalHours = 0;
+
+    records.forEach((record, index) => {
+        totalHours += Number(record.hours) || 0;
+
+        const tr = document.createElement("tr");
+
+        const values = [
+            index + 1,
+            record.name,
+            record.date,
+            record.timeIn || "—",
+            record.timeOut || "—",
+            Number(record.hours || 0).toFixed(2)
+        ];
+
+        values.forEach(value => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+        });
+
+        // REMARKS AFTER TOTAL HOURS
+        const remarksCell = document.createElement("td");
+        const badge = document.createElement("span");
+
+        badge.className = "status " + record.remarks;
+        badge.textContent = record.remarks;
+
+        remarksCell.appendChild(badge);
+        tr.appendChild(remarksCell);
+
+        // ACTION BUTTONS
+        const actionCell = document.createElement("td");
+
+        const editButton = document.createElement("button");
+        editButton.className = "btn-warning small-btn";
+        editButton.textContent = "Edit";
+        editButton.onclick = () => editRecord(record.id);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "btn-danger small-btn";
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = () => deleteRecord(record.id);
+
+        actionCell.append(editButton, deleteButton);
+        tr.appendChild(actionCell);
+
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById("monthlyTotal").textContent =
+        "Total Working Hours: " + totalHours.toFixed(2);
+}
+
+// EDIT RECORD
+function editRecord(id) {
+    const record = getRecords().find(r => r.id === id);
+
+    if (!record) return;
+
+    editingRecordId = id;
+
+    document.getElementById("empName").value = record.name;
+    document.getElementById("date").value = record.date;
+    document.getElementById("timeIn").value = record.timeIn || "";
+    document.getElementById("timeOut").value = record.timeOut || "";
+    document.getElementById("remarks").value = record.remarks;
+
+    handleRemarksChange();
+
+    document.getElementById("saveButton").textContent = "Update Attendance";
+    document.getElementById("formTitle").textContent = "Edit Attendance Record";
+
+    document.querySelectorAll(".card")[1].scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+// DELETE RECORD
+function deleteRecord(id) {
+    if (!confirm("Delete this attendance record?")) return;
+
+    const records = getRecords().filter(r => r.id !== id);
+
+    saveRecords(records);
+    loadRecords();
+}
+
+// CLEAR FORM
+function clearForm() {
+    editingRecordId = null;
+
+    document.getElementById("empName").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("remarks").value = "PRESENT";
+    document.getElementById("timeIn").value = "";
+    document.getElementById("timeOut").value = "";
+
+    document.getElementById("saveButton").textContent = "Save Attendance";
+    document.getElementById("formTitle").textContent = "Attendance Entry";
+
+    handleRemarksChange();
+}
+
+// CLEAR MONTH
+function clearMonth() {
+    if (!confirm(
+        "Delete ALL attendance records for " + months[currentMonth] + "?"
+    )) return;
+
+    localStorage.removeItem("dtr_" + currentMonth);
+
+    editingRecordId = null;
+    clearForm();
+    loadRecords();
+
+    alert("Monthly attendance records cleared.");
+}
+
+// PDF EXPORT
+function exportPDF() {
+    const records = getSortedRecords();
+
+    if (!records.length) {
+        alert("No records available to export.");
+        return;
+    }
+
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("PDF library could not load. Please check your internet connection.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("landscape");
+
+    doc.setFontSize(18);
+    doc.text("DAILY TIME RECORD", 14, 15);
+
+    doc.setFontSize(11);
+    doc.text("Month: " + months[currentMonth], 14, 23);
+
+    const selectedEmployee =
+        document.getElementById("filterEmployee").value;
+
+    doc.text(
+        "Employee: " +
+        (selectedEmployee === "all" ? "All Employees" : selectedEmployee),
+        14,
+        28
+    );
+
+    const tableData = records.map((record, index) => [
+        index + 1,
+        record.name,
+        record.date,
+        record.timeIn || "—",
+        record.timeOut || "—",
+        Number(record.hours || 0).toFixed(2),
+        record.remarks
+    ]);
+
+    const totalHours = records.reduce(
+        (sum, record) => sum + (Number(record.hours) || 0),
+        0
+    );
+
+    doc.autoTable({
+        startY: 34,
+        head: [[
+            "#",
+            "Employee Name",
+            "Date",
+            "Time In",
+            "Time Out",
+            "Total Hours",
+            "Remarks"
+        ]],
+        body: tableData,
+        theme: "grid",
+        styles: {
+            fontSize: 9,
+            cellPadding: 3
+        },
+        headStyles: {
+            fillColor: [23, 59, 103]
+        }
+    });
+
+    doc.setFontSize(11);
+    doc.text(
+        "Total Working Hours: " + totalHours.toFixed(2),
+        14,
+        doc.lastAutoTable.finalY + 10
+    );
+
+    const fileName = selectedEmployee === "all"
+        ? "DTR_" + months[currentMonth] + ".pdf"
+        : "DTR_" + selectedEmployee.replace(/[^a-z0-9]/gi, "_") +
+          "_" + months[currentMonth] + ".pdf";
+
+    doc.save(fileName);
+}
+
+// EVENT LISTENERS
+document.getElementById("timeIn").addEventListener("input", calculateHours);
+document.getElementById("timeOut").addEventListener("input", calculateHours);
+
+// INITIALIZE
+function initialize() {
+    const today = new Date();
+
+    document.getElementById("date").value =
+        today.getFullYear() + "-" +
+        String(today.getMonth() + 1).padStart(2, "0") + "-" +
+        String(today.getDate()).padStart(2, "0");
+
+    loadEmployees();
+    buildMonthTabs();
+    updateMonthLabel();
+    handleRemarksChange();
+    loadRecords();
+}
+
+initialize();
+</script>
+
+</body>
+</html>
