@@ -5,956 +5,606 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Time Record System</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    background: #f3f6fb;
-    color: #263238;
-}
-
-.container {
-    max-width: 1250px;
-    margin: auto;
-}
-
-.header {
-    background: #173b67;
-    color: white;
-    padding: 25px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-.header h1 { margin: 0 0 8px; }
-.header p { margin: 0; opacity: .85; }
-
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.06);
-}
-
-h2 { margin-top: 0; color: #173b67; }
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-}
-
-label {
-    font-weight: bold;
-    font-size: 13px;
-}
-
-input, select {
-    width: 100%;
-    padding: 11px;
-    border: 1px solid #ccd5df;
-    border-radius: 7px;
-    font-size: 14px;
-    background: white;
-}
-
-button {
-    border: none;
-    border-radius: 7px;
-    padding: 11px 16px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 13px;
-}
-
-button:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-}
-
-.btn-primary { background: #1769aa; color: white; }
-.btn-success { background: #218838; color: white; }
-.btn-danger { background: #dc3545; color: white; }
-.btn-secondary { background: #64748b; color: white; }
-.btn-warning { background: #e9a323; color: #222; }
-
-.month-tabs {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-}
-
-.month-tabs button {
-    background: #e5eaf0;
-    color: #333;
-}
-
-.month-tabs button.active {
-    background: #173b67;
-    color: white;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 15px;
-}
-
-.table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-}
-
-.table-header h2 { margin: 0; }
-
-.filters {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: end;
-}
-
-.filters .form-group {
-    min-width: 190px;
-}
-
-.table-wrapper { overflow-x: auto; }
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 850px;
-}
-
-th, td {
-    padding: 12px 10px;
-    border-bottom: 1px solid #e5e7eb;
-    text-align: left;
-    font-size: 13px;
-}
-
-th {
-    background: #edf3f9;
-    color: #173b67;
-}
-
-.status {
-    display: inline-block;
-    padding: 5px 9px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: bold;
-}
-
-.PRESENT { background: #d4edda; color: #155724; }
-.ABSENT { background: #f8d7da; color: #721c24; }
-.RTW { background: #d1ecf1; color: #0c5460; }
-.RDOT { background: #fff3cd; color: #856404; }
-.RD { background: #e2e3e5; color: #383d41; }
-
-.empty-row {
-    text-align: center;
-    padding: 25px;
-    color: #777;
-}
-
-.month-label {
-    font-weight: bold;
-    color: #173b67;
-    margin-bottom: 12px;
-}
-
-.total-box {
-    background: #edf5ff;
-    padding: 14px;
-    border-radius: 8px;
-    margin-top: 15px;
-    font-weight: bold;
-}
-
-.employee-delete, .small-btn {
-    padding: 7px 10px;
-    margin: 2px;
-}
-
-/* FOOTER */
-footer {
-    text-align: center;
-    padding: 18px;
-    margin-top: 25px;
-    color: #64748b;
-    font-size: 13px;
-    border-top: 1px solid #ddd;
-}
-
-@media(max-width: 600px) {
-    body { padding: 10px; }
-    .header, .card { padding: 15px; }
-    .table-header { align-items: stretch; }
-    .filters { width: 100%; }
-    .filters .form-group { flex: 1; min-width: 100%; }
-    .action-buttons button { flex: 1; }
+*{box-sizing:border-box}
+body{margin:0;padding:20px;font-family:Arial,sans-serif;background:#f3f6fb;color:#263238}
+.container{max-width:1250px;margin:auto}
+.header{background:#173b67;color:white;padding:25px;border-radius:12px;margin-bottom:20px}
+.header h1{margin:0 0 8px}.header p{margin:0;opacity:.85}
+.card{background:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.06)}
+h2{margin-top:0;color:#173b67}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px}
+.form-group{display:flex;flex-direction:column;gap:7px}
+label{font-weight:bold;font-size:13px}
+input,select{width:100%;padding:11px;border:1px solid #ccd5df;border-radius:7px;font-size:14px;background:white}
+button{border:0;border-radius:7px;padding:11px 16px;cursor:pointer;font-weight:bold;font-size:13px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:#1769aa;color:white}.btn-success{background:#218838;color:white}
+.btn-danger{background:#dc3545;color:white}.btn-secondary{background:#64748b;color:white}
+.btn-warning{background:#e9a323;color:#222}
+.month-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.month-tabs button{background:#e5eaf0;color:#333}
+.month-tabs button.active{background:#173b67;color:white}
+.action-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.table-header{display:flex;justify-content:space-between;align-items:end;gap:15px;flex-wrap:wrap;margin-bottom:15px}
+.table-header h2{margin:0}.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+.filters .form-group{min-width:190px}.table-wrapper{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th,td{padding:12px 10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}
+th{background:#edf3f9;color:#173b67}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold}
+.PRESENT{background:#d4edda;color:#155724}.ABSENT{background:#f8d7da;color:#721c24}
+.RTW{background:#d1ecf1;color:#0c5460}.RDOT{background:#fff3cd;color:#856404}
+.RD{background:#e2e3e5;color:#383d41}
+.empty-row{text-align:center;padding:25px;color:#777}
+.month-label{font-weight:bold;color:#173b67;margin-bottom:12px}
+.total-box{background:#edf5ff;padding:14px;border-radius:8px;margin-top:15px;font-weight:bold}
+.small-btn{padding:7px 10px;margin:2px}
+footer{text-align:center;padding:18px;margin-top:25px;color:#64748b;font-size:13px;border-top:1px solid #ddd}
+.auth-card{max-width:520px;margin:35px auto}
+.notice{padding:12px;border-radius:8px;margin:12px 0;font-size:13px;display:none}
+.notice.error{display:block;background:#fde8e8;color:#9b1c1c}
+.notice.success{display:block;background:#e2f6e9;color:#176534}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:15px}
+#appArea{display:none}
+.muted{color:#64748b;font-size:13px}
+@media(max-width:600px){
+ body{padding:10px}.header,.card{padding:15px}.table-header{align-items:stretch}
+ .filters{width:100%}.filters .form-group{flex:1;min-width:100%}
+ .action-buttons button{flex:1}
 }
 </style>
 </head>
-
 <body>
 <div class="container">
+  <div class="header">
+    <h1>Daily Time Record System</h1>
+    <p>Employee Attendance Monitoring</p>
+  </div>
 
-    <div class="header">
-        <h1>Daily Time Record System</h1>
-        <p>Employee Attendance Monitoring</p>
+  <section class="card auth-card" id="authArea">
+    <h2 id="authTitle">Administrator Login</h2>
+    <p class="muted">Sign in to access the shared cloud attendance database.</p>
+    <div id="authNotice" class="notice"></div>
+    <form id="authForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="authEmail">Email Address</label>
+          <input type="email" id="authEmail" autocomplete="username" required placeholder="admin@example.com">
+        </div>
+        <div class="form-group">
+          <label for="authPassword">Password</label>
+          <input type="password" id="authPassword" autocomplete="current-password" required minlength="6" placeholder="Enter password">
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button type="submit" class="btn-primary" id="authSubmit">Sign In</button>
+        <button type="button" class="btn-secondary" id="toggleAuth">Create Account</button>
+      </div>
+    </form>
+    <p class="muted">If email confirmation is enabled in Supabase, check your inbox after creating an account.</p>
+  </section>
+
+  <main id="appArea">
+    <div class="topbar">
+      <div>
+        <strong id="signedInAs"></strong>
+        <div class="muted">Cloud database connected</div>
+      </div>
+      <button class="btn-secondary" id="logoutButton">Sign Out</button>
     </div>
 
-    <!-- EMPLOYEE REGISTRATION -->
-    <div class="card">
-        <h2>Employee Registration</h2>
-
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Employee Name</label>
-                <input type="text" id="newEmployeeName"
-                       placeholder="Enter employee name">
-            </div>
+    <section class="card">
+      <h2>Employee Registration</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="newEmployeeName">Employee Name</label>
+          <input type="text" id="newEmployeeName" placeholder="Enter employee name">
         </div>
+      </div>
+      <div class="action-buttons">
+        <button class="btn-success" id="registerButton">Register Employee</button>
+      </div>
+      <h3>Registered Employees</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>#</th><th>Employee Name</th><th>Action</th></tr></thead>
+          <tbody id="employeeBody"></tbody>
+        </table>
+      </div>
+    </section>
 
-        <div class="action-buttons">
-            <button class="btn-success" onclick="registerEmployee()">
-                Register Employee
-            </button>
+    <section class="card">
+      <h2 id="formTitle">Attendance Entry</h2>
+      <div class="month-label" id="selectedMonthLabel"></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="empName">Employee Name</label>
+          <select id="empName"><option value="">Select Employee</option></select>
         </div>
-
-        <h3>Registered Employees</h3>
-
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Employee Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="employeeBody"></tbody>
-            </table>
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input type="date" id="date">
         </div>
-    </div>
-
-    <!-- ATTENDANCE ENTRY -->
-    <div class="card">
-        <h2 id="formTitle">Attendance Entry</h2>
-
-        <div class="month-label" id="selectedMonthLabel"></div>
-
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Employee Name</label>
-                <select id="empName">
-                    <option value="">Select Employee</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Date</label>
-                <input type="date" id="date">
-            </div>
-
-            <div class="form-group">
-                <label>Time In</label>
-                <input type="time" id="timeIn">
-            </div>
-
-            <div class="form-group">
-                <label>Time Out</label>
-                <input type="time" id="timeOut">
-            </div>
-
-            <div class="form-group">
-                <label>Remarks</label>
-                <select id="remarks" onchange="handleRemarksChange()">
-                    <option value="PRESENT">PRESENT</option>
-                    <option value="ABSENT">ABSENT</option>
-                    <option value="RTW">RTW</option>
-                    <option value="RDOT">RDOT</option>
-                    <option value="RD">RD</option>
-                </select>
-            </div>
+        <div class="form-group">
+          <label for="timeIn">Time In</label>
+          <input type="time" id="timeIn">
         </div>
-
-        <div class="total-box" id="hoursDisplay">
-            Total Hours: 0.00
+        <div class="form-group">
+          <label for="timeOut">Time Out</label>
+          <input type="time" id="timeOut">
         </div>
-
-        <div class="action-buttons">
-            <button class="btn-primary" id="saveButton" onclick="addRecord()">
-                Save Attendance
-            </button>
-            <button class="btn-secondary" onclick="clearForm()">
-                Clear Form
-            </button>
+        <div class="form-group">
+          <label for="remarks">Remarks</label>
+          <select id="remarks">
+            <option value="PRESENT">PRESENT</option>
+            <option value="ABSENT">ABSENT</option>
+            <option value="RTW">RTW</option>
+            <option value="RDOT">RDOT</option>
+            <option value="RD">RD</option>
+          </select>
         </div>
-    </div>
+      </div>
+      <div class="total-box" id="hoursDisplay">Total Hours: 0.00</div>
+      <div class="action-buttons">
+        <button class="btn-primary" id="saveButton">Save Attendance</button>
+        <button class="btn-secondary" id="clearFormButton">Clear Form</button>
+      </div>
+    </section>
 
-    <!-- MONTHLY RECORDS -->
-    <div class="card">
-        <h2>Monthly Attendance Records</h2>
-
-        <div class="month-tabs" id="monthTabs"></div>
-
-        <div class="table-header">
-            <h2 id="recordsTitle">Attendance Records</h2>
-
-            <div class="filters">
-                <div class="form-group">
-                    <label>Filter by Employee</label>
-                    <select id="filterEmployee" onchange="loadRecords()">
-                        <option value="all">All Employees</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Sort Records By</label>
-                    <select id="sortRecords" onchange="loadRecords()">
-                        <option value="dateAsc">Date (Oldest–Newest)</option>
-                        <option value="dateDesc">Date (Newest–Oldest)</option>
-                        <option value="nameAsc">Employee Name (A–Z)</option>
-                        <option value="nameDesc">Employee Name (Z–A)</option>
-                    </select>
-                </div>
-            </div>
+    <section class="card">
+      <h2>Monthly Attendance Records</h2>
+      <div class="month-tabs" id="monthTabs"></div>
+      <div class="table-header">
+        <h2 id="recordsTitle">Attendance Records</h2>
+        <div class="filters">
+          <div class="form-group">
+            <label for="yearSelect">Year</label>
+            <select id="yearSelect"></select>
+          </div>
+          <div class="form-group">
+            <label for="filterEmployee">Filter by Employee</label>
+            <select id="filterEmployee"><option value="all">All Employees</option></select>
+          </div>
+          <div class="form-group">
+            <label for="sortRecords">Sort Records By</label>
+            <select id="sortRecords">
+              <option value="dateAsc">Date (Oldest–Newest)</option>
+              <option value="dateDesc">Date (Newest–Oldest)</option>
+              <option value="nameAsc">Employee Name (A–Z)</option>
+              <option value="nameDesc">Employee Name (Z–A)</option>
+            </select>
+          </div>
         </div>
-
-        <div class="action-buttons">
-            <button class="btn-success" onclick="exportPDF()">Export PDF</button>
-            <button class="btn-danger" onclick="clearMonth()">Clear Month</button>
-        </div>
-
-        <div class="table-wrapper" style="margin-top:15px;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Employee Name</th>
-                        <th>Date</th>
-                        <th>Time In</th>
-                        <th>Time Out</th>
-                        <th>Total Hours</th>
-                        <th>Remarks</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="recordsBody"></tbody>
-            </table>
-        </div>
-
-        <div class="total-box" id="monthlyTotal">
-            Total Working Hours: 0.00
-        </div>
-    </div>
-
+      </div>
+      <div class="action-buttons">
+        <button class="btn-success" id="exportButton">Export PDF</button>
+        <button class="btn-danger" id="clearMonthButton">Clear Month</button>
+      </div>
+      <div class="table-wrapper" style="margin-top:15px">
+        <table>
+          <thead><tr><th>#</th><th>Employee Name</th><th>Date</th><th>Time In</th><th>Time Out</th><th>Total Hours</th><th>Remarks</th><th>Action</th></tr></thead>
+          <tbody id="recordsBody"></tbody>
+        </table>
+      </div>
+      <div class="total-box" id="monthlyTotal">Total Working Hours: 0.00</div>
+    </section>
+  </main>
 </div>
 
-<!-- FOOTER -->
-<footer>
-    Developed by John Ariel Pana @2026
-</footer>
+<footer>Developed by John Ariel Pana @2026</footer>
 
 <script>
-const months = [
-    "January", "February", "March", "April",
-    "May", "June", "July", "August",
-    "September", "October", "November", "December"
-];
+/*
+  Supabase browser configuration.
+  The publishable key is intended for client-side use.
+  Database access is protected by Supabase Auth and Row Level Security.
+*/
+const SUPABASE_URL = "https://atewixeldrbgkqocfngl.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_d7JROQ9c5l-85LgEFmjEFQ_P1BWeubM";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const months = ["January","February","March","April","May","June",
+  "July","August","September","October","November","December"];
 
 let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
 let editingRecordId = null;
+let employees = [];
+let allRecords = [];
+let isSignUpMode = false;
 
-const EMPLOYEE_KEY = "dtr_registered_employees";
+const $ = id => document.getElementById(id);
+const showNotice = (id, message, type="error") => {
+  const el = $(id);
+  el.textContent = message;
+  el.className = "notice " + type;
+};
+const hideNotice = id => { $(id).className = "notice"; $(id).textContent = ""; };
 
-function getEmployees() {
-    return JSON.parse(localStorage.getItem(EMPLOYEE_KEY) || "[]");
+function localDateString(date = new Date()) {
+  return date.getFullYear() + "-" +
+    String(date.getMonth()+1).padStart(2,"0") + "-" +
+    String(date.getDate()).padStart(2,"0");
 }
-
-function saveEmployees(employees) {
-    localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(employees));
-}
-
-function getRecords() {
-    return JSON.parse(localStorage.getItem("dtr_" + currentMonth) || "[]");
-}
-
-function saveRecords(records) {
-    localStorage.setItem("dtr_" + currentMonth, JSON.stringify(records));
-}
-
-// EMPLOYEE REGISTRATION
-function registerEmployee() {
-    const input = document.getElementById("newEmployeeName");
-    const name = input.value.trim();
-
-    if (!name) {
-        alert("Please enter an employee name.");
-        return;
-    }
-
-    const employees = getEmployees();
-
-    if (employees.some(e => e.toLowerCase() === name.toLowerCase())) {
-        alert("This employee is already registered.");
-        return;
-    }
-
-    employees.push(name);
-    employees.sort((a, b) => a.localeCompare(b));
-
-    saveEmployees(employees);
-    input.value = "";
-    loadEmployees();
-
-    alert("Employee successfully registered!");
-}
-
-function loadEmployees() {
-    const employees = getEmployees();
-    const select = document.getElementById("empName");
-    const tbody = document.getElementById("employeeBody");
-    const filter = document.getElementById("filterEmployee");
-
-    const selectedEmployee = select.value;
-    const selectedFilter = filter.value;
-
-    select.innerHTML = '<option value="">Select Employee</option>';
-    filter.innerHTML = '<option value="all">All Employees</option>';
-
-    employees.forEach(name => {
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        select.appendChild(option);
-
-        const filterOption = document.createElement("option");
-        filterOption.value = name;
-        filterOption.textContent = name;
-        filter.appendChild(filterOption);
-    });
-
-    if (employees.includes(selectedEmployee)) {
-        select.value = selectedEmployee;
-    }
-
-    if (employees.includes(selectedFilter)) {
-        filter.value = selectedFilter;
-    }
-
-    tbody.innerHTML = "";
-
-    if (!employees.length) {
-        tbody.innerHTML =
-            '<tr><td colspan="3" class="empty-row">No registered employees.</td></tr>';
-        return;
-    }
-
-    employees.forEach((name, index) => {
-        const tr = document.createElement("tr");
-
-        const number = document.createElement("td");
-        number.textContent = index + 1;
-
-        const nameCell = document.createElement("td");
-        nameCell.textContent = name;
-
-        const action = document.createElement("td");
-        const button = document.createElement("button");
-
-        button.className = "btn-danger employee-delete";
-        button.textContent = "Delete";
-        button.onclick = () => deleteEmployee(name);
-
-        action.appendChild(button);
-        tr.append(number, nameCell, action);
-        tbody.appendChild(tr);
-    });
-}
-
-function deleteEmployee(name) {
-    if (!confirm("Remove " + name + " from the employee list?")) return;
-
-    saveEmployees(getEmployees().filter(e => e !== name));
-    loadEmployees();
-    loadRecords();
-
-    alert("Employee removed. Existing attendance records are retained.");
-}
-
-// MONTH TABS
-function buildMonthTabs() {
-    const container = document.getElementById("monthTabs");
-    container.innerHTML = "";
-
-    months.forEach((month, index) => {
-        const button = document.createElement("button");
-        button.textContent = month.substring(0, 3);
-
-        if (index === currentMonth) button.classList.add("active");
-
-        button.onclick = () => {
-            currentMonth = index;
-            editingRecordId = null;
-            buildMonthTabs();
-            updateMonthLabel();
-            clearForm();
-            loadRecords();
-        };
-
-        container.appendChild(button);
-    });
-}
-
-function updateMonthLabel() {
-    document.getElementById("selectedMonthLabel").textContent =
-        "Selected Month: " + months[currentMonth];
-
-    document.getElementById("recordsTitle").textContent =
-        months[currentMonth] + " Attendance Records";
-}
-
-// REMARKS AND HOURS
-function handleRemarksChange() {
-    const remarks = document.getElementById("remarks").value;
-    const timeIn = document.getElementById("timeIn");
-    const timeOut = document.getElementById("timeOut");
-
-    const disabled = remarks === "ABSENT" || remarks === "RD";
-
-    timeIn.disabled = disabled;
-    timeOut.disabled = disabled;
-
-    if (disabled) {
-        timeIn.value = "";
-        timeOut.value = "";
-    }
-
-    calculateHours();
-}
-
 function calculateDuration(timeIn, timeOut) {
-    if (!timeIn || !timeOut) return 0;
-
-    const [inHour, inMinute] = timeIn.split(":").map(Number);
-    const [outHour, outMinute] = timeOut.split(":").map(Number);
-
-    let start = inHour * 60 + inMinute;
-    let end = outHour * 60 + outMinute;
-
-    if (end <= start) end += 24 * 60;
-
-    return (end - start) / 60;
+  if (!timeIn || !timeOut) return 0;
+  const [ih, im] = timeIn.split(":").map(Number);
+  const [oh, om] = timeOut.split(":").map(Number);
+  let start = ih*60+im, end = oh*60+om;
+  if (end <= start) end += 1440;
+  return (end-start)/60;
 }
-
+function currentRemarksHours(remarks, timeIn, timeOut) {
+  return (remarks === "ABSENT" || remarks === "RD") ? 0 : calculateDuration(timeIn,timeOut);
+}
+function handleRemarksChange() {
+  const disabled = ["ABSENT","RD"].includes($("remarks").value);
+  $("timeIn").disabled = disabled;
+  $("timeOut").disabled = disabled;
+  if (disabled) { $("timeIn").value=""; $("timeOut").value=""; }
+  calculateHours();
+}
 function calculateHours() {
-    const remarks = document.getElementById("remarks").value;
-    const timeIn = document.getElementById("timeIn").value;
-    const timeOut = document.getElementById("timeOut").value;
-
-    let hours = 0;
-
-    if (remarks !== "ABSENT" && remarks !== "RD") {
-        hours = calculateDuration(timeIn, timeOut);
-    }
-
-    document.getElementById("hoursDisplay").textContent =
-        "Total Hours: " + hours.toFixed(2);
+  const hours = currentRemarksHours($("remarks").value,$("timeIn").value,$("timeOut").value);
+  $("hoursDisplay").textContent = "Total Hours: " + hours.toFixed(2);
+}
+function setAuthenticatedUI(session) {
+  const loggedIn = !!session;
+  $("authArea").style.display = loggedIn ? "none" : "block";
+  $("appArea").style.display = loggedIn ? "block" : "none";
+  if (loggedIn) {
+    $("signedInAs").textContent = "Signed in: " + (session.user.email || "Authenticated user");
+  } else {
+    employees = [];
+    allRecords = [];
+  }
 }
 
-// ADD OR UPDATE ATTENDANCE
-function addRecord() {
-    const name = document.getElementById("empName").value;
-    const date = document.getElementById("date").value;
-    const timeIn = document.getElementById("timeIn").value;
-    const timeOut = document.getElementById("timeOut").value;
-    const remarks = document.getElementById("remarks").value;
-
-    if (!name) {
-        alert("Please select an employee.");
-        return;
-    }
-
-    if (!date) {
-        alert("Please select a date.");
-        return;
-    }
-
-    if (remarks !== "ABSENT" && remarks !== "RD") {
-        if (!timeIn || !timeOut) {
-            alert("Please enter both Time In and Time Out.");
-            return;
-        }
-    }
-
-    const recordMonth = new Date(date + "T00:00:00").getMonth();
-
-    if (recordMonth !== currentMonth) {
-        alert("The selected date does not belong to the selected month.");
-        return;
-    }
-
-    const records = getRecords();
-
-    const duplicate = records.some(record =>
-        record.name.toLowerCase() === name.toLowerCase() &&
-        record.date === date &&
-        record.id !== editingRecordId
-    );
-
-    if (duplicate) {
-        alert("This employee already has a record for this date.");
-        return;
-    }
-
-    const hours = (remarks === "ABSENT" || remarks === "RD")
-        ? 0
-        : calculateDuration(timeIn, timeOut);
-
-    if (editingRecordId) {
-        const index = records.findIndex(r => r.id === editingRecordId);
-
-        if (index !== -1) {
-            records[index] = {
-                ...records[index],
-                name,
-                date,
-                timeIn,
-                timeOut,
-                remarks,
-                hours
-            };
-        }
-
-        editingRecordId = null;
-        document.getElementById("saveButton").textContent = "Save Attendance";
-        document.getElementById("formTitle").textContent = "Attendance Entry";
+async function signInOrSignUp(event) {
+  event.preventDefault();
+  hideNotice("authNotice");
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  $("authSubmit").disabled = true;
+  try {
+    if (isSignUpMode) {
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) throw error;
+      if (data.session) {
+        showNotice("authNotice","Account created and signed in successfully.","success");
+      } else {
+        showNotice("authNotice","Account created. Check your email to confirm your address, then sign in.","success");
+      }
     } else {
-        records.push({
-            id: Date.now().toString() + Math.random().toString(16).slice(2),
-            name,
-            date,
-            timeIn,
-            timeOut,
-            remarks,
-            hours
-        });
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     }
-
-    saveRecords(records);
-    loadRecords();
-    clearForm();
-
-    alert("Attendance successfully saved!");
+  } catch (error) {
+    showNotice("authNotice",error.message || "Authentication failed.");
+  } finally {
+    $("authSubmit").disabled = false;
+  }
+}
+function toggleAuthMode() {
+  isSignUpMode = !isSignUpMode;
+  $("authTitle").textContent = isSignUpMode ? "Create Administrator Account" : "Administrator Login";
+  $("authSubmit").textContent = isSignUpMode ? "Create Account" : "Sign In";
+  $("toggleAuth").textContent = isSignUpMode ? "Back to Login" : "Create Account";
+  $("authPassword").autocomplete = isSignUpMode ? "new-password" : "current-password";
+  hideNotice("authNotice");
 }
 
-// FILTER AND SORT
+async function loadEmployees() {
+  const { data, error } = await supabaseClient.from("employees").select("id,name").order("name");
+  if (error) throw error;
+  employees = data || [];
+  const select = $("empName"), filter = $("filterEmployee"), tbody = $("employeeBody");
+  const oldEmployee = select.value, oldFilter = filter.value;
+  select.innerHTML = '<option value="">Select Employee</option>';
+  filter.innerHTML = '<option value="all">All Employees</option>';
+  employees.forEach(emp => {
+    const opt = document.createElement("option");
+    opt.value = emp.id; opt.textContent = emp.name; select.appendChild(opt);
+    const fopt = document.createElement("option");
+    fopt.value = emp.id; fopt.textContent = emp.name; filter.appendChild(fopt);
+  });
+  if (employees.some(e => e.id === oldEmployee)) select.value = oldEmployee;
+  if (employees.some(e => e.id === oldFilter)) filter.value = oldFilter;
+  tbody.innerHTML = "";
+  if (!employees.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="empty-row">No registered employees.</td></tr>';
+    return;
+  }
+  employees.forEach((emp,index) => {
+    const tr = document.createElement("tr");
+    const n = document.createElement("td"); n.textContent = index+1;
+    const name = document.createElement("td"); name.textContent = emp.name;
+    const action = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.className = "btn-danger small-btn"; btn.textContent = "Delete";
+    btn.onclick = () => deleteEmployee(emp);
+    action.appendChild(btn); tr.append(n,name,action); tbody.appendChild(tr);
+  });
+}
+
+async function registerEmployee() {
+  const name = $("newEmployeeName").value.trim();
+  if (!name) return alert("Please enter an employee name.");
+  try {
+    const { error } = await supabaseClient.from("employees").insert({name});
+    if (error) {
+      if (error.code === "23505") throw new Error("This employee is already registered.");
+      throw error;
+    }
+    $("newEmployeeName").value = "";
+    await loadEmployees();
+    alert("Employee successfully registered in the cloud database.");
+  } catch (error) { alert("Could not register employee: " + error.message); }
+}
+async function deleteEmployee(emp) {
+  if (!confirm("Remove " + emp.name + " from the employee list? Existing attendance records will be retained.")) return;
+  try {
+    const { error } = await supabaseClient.from("employees").delete().eq("id",emp.id);
+    if (error) throw error;
+    await loadEmployees();
+    await loadRecords();
+    alert("Employee removed. Existing attendance records are retained.");
+  } catch(error) { alert("Could not delete employee: " + error.message); }
+}
+
+function buildMonthTabs() {
+  const container = $("monthTabs"); container.innerHTML = "";
+  months.forEach((month,index) => {
+    const button = document.createElement("button");
+    button.textContent = month.substring(0,3);
+    if (index === currentMonth) button.classList.add("active");
+    button.onclick = () => {
+      currentMonth = index; editingRecordId = null;
+      buildMonthTabs(); updateMonthLabel(); clearForm(); loadRecords();
+    };
+    container.appendChild(button);
+  });
+}
+function buildYearOptions() {
+  const select = $("yearSelect");
+  const years = new Set([currentYear, new Date().getFullYear()]);
+  allRecords.forEach(r => years.add(Number(r.work_date.slice(0,4))));
+  select.innerHTML = "";
+  [...years].sort((a,b)=>b-a).forEach(year => {
+    const option = document.createElement("option");
+    option.value = year; option.textContent = year; select.appendChild(option);
+  });
+  select.value = String(currentYear);
+}
+function updateMonthLabel() {
+  $("selectedMonthLabel").textContent = "Selected Month: " + months[currentMonth] + " " + currentYear;
+  $("recordsTitle").textContent = months[currentMonth] + " " + currentYear + " Attendance Records";
+}
+
+async function loadRecords() {
+  try {
+    const { data, error } = await supabaseClient.from("attendance")
+      .select("id,employee_id,employee_name,work_date,time_in,time_out,total_hours,remarks")
+      .gte("work_date", currentYear + "-" + String(currentMonth+1).padStart(2,"0") + "-01")
+      .lt("work_date", currentMonth === 11 ? (currentYear+1)+"-01-01" : currentYear+"-"+String(currentMonth+2).padStart(2,"0")+"-01");
+    if (error) throw error;
+    allRecords = data || [];
+    buildYearOptions();
+    renderRecords();
+  } catch(error) {
+    console.error(error);
+    $("recordsBody").innerHTML = '<tr><td colspan="8" class="empty-row">Unable to load records: '+escapeHtml(error.message)+'</td></tr>';
+    $("monthlyTotal").textContent = "Total Working Hours: 0.00";
+  }
+}
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
 function getSortedRecords() {
-    let records = getRecords();
-
-    const filterEmployee =
-        document.getElementById("filterEmployee").value;
-
-    const sortOption =
-        document.getElementById("sortRecords").value;
-
-    if (filterEmployee !== "all") {
-        records = records.filter(
-            record => record.name === filterEmployee
-        );
+  let records = [...allRecords];
+  const filterId = $("filterEmployee").value;
+  const sort = $("sortRecords").value;
+  if (filterId !== "all") records = records.filter(r => r.employee_id === filterId);
+  records.sort((a,b) => {
+    if (sort === "nameAsc") return a.employee_name.localeCompare(b.employee_name) || a.work_date.localeCompare(b.work_date);
+    if (sort === "nameDesc") return b.employee_name.localeCompare(a.employee_name) || a.work_date.localeCompare(b.work_date);
+    if (sort === "dateDesc") return b.work_date.localeCompare(a.work_date) || a.employee_name.localeCompare(b.employee_name);
+    return a.work_date.localeCompare(b.work_date) || a.employee_name.localeCompare(b.employee_name);
+  });
+  return records;
+}
+function renderRecords() {
+  const records = getSortedRecords(), tbody = $("recordsBody");
+  tbody.innerHTML = "";
+  if (!records.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-row">No attendance records found.</td></tr>';
+    $("monthlyTotal").textContent = "Total Working Hours: 0.00";
+    return;
+  }
+  let total = 0;
+  records.forEach((record,index) => {
+    total += Number(record.total_hours)||0;
+    const tr = document.createElement("tr");
+    [index+1,record.employee_name,record.work_date,record.time_in || "—",record.time_out || "—",(Number(record.total_hours)||0).toFixed(2)].forEach(value => {
+      const td = document.createElement("td"); td.textContent = value; tr.appendChild(td);
+    });
+    const remarksCell = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.className = "status " + record.remarks; badge.textContent = record.remarks;
+    remarksCell.appendChild(badge); tr.appendChild(remarksCell);
+    const action = document.createElement("td");
+    const edit = document.createElement("button");
+    edit.className = "btn-warning small-btn"; edit.textContent = "Edit";
+    edit.onclick = () => editRecord(record);
+    const del = document.createElement("button");
+    del.className = "btn-danger small-btn"; del.textContent = "Delete";
+    del.onclick = () => deleteRecord(record.id);
+    action.append(edit,del); tr.appendChild(action); tbody.appendChild(tr);
+  });
+  $("monthlyTotal").textContent = "Total Working Hours: " + total.toFixed(2);
+}
+async function saveRecord() {
+  const employeeId = $("empName").value;
+  const employee = employees.find(e => e.id === employeeId);
+  const date = $("date").value, timeIn = $("timeIn").value, timeOut = $("timeOut").value;
+  const remarks = $("remarks").value;
+  if (!employee) return alert("Please select an employee.");
+  if (!date) return alert("Please select a date.");
+  if (date.slice(0,4) !== String(currentYear) || Number(date.slice(5,7))-1 !== currentMonth)
+    return alert("The selected date does not belong to the selected month and year.");
+  if (!["ABSENT","RD"].includes(remarks) && (!timeIn || !timeOut))
+    return alert("Please enter both Time In and Time Out.");
+  const hours = currentRemarksHours(remarks,timeIn,timeOut);
+  const payload = {
+    employee_id: employee.id,
+    employee_name: employee.name,
+    work_date: date,
+    time_in: ["ABSENT","RD"].includes(remarks) ? null : timeIn,
+    time_out: ["ABSENT","RD"].includes(remarks) ? null : timeOut,
+    total_hours: hours,
+    remarks,
+    updated_at: new Date().toISOString()
+  };
+  $("saveButton").disabled = true;
+  try {
+    let result;
+    if (editingRecordId) {
+      result = await supabaseClient.from("attendance").update(payload).eq("id",editingRecordId);
+    } else {
+      result = await supabaseClient.from("attendance").insert(payload);
     }
-
-    records.sort((a, b) => {
-        switch (sortOption) {
-            case "nameAsc":
-                return a.name.localeCompare(b.name) ||
-                       a.date.localeCompare(b.date);
-
-            case "nameDesc":
-                return b.name.localeCompare(a.name) ||
-                       a.date.localeCompare(b.date);
-
-            case "dateDesc":
-                return b.date.localeCompare(a.date) ||
-                       a.name.localeCompare(b.name);
-
-            case "dateAsc":
-            default:
-                return a.date.localeCompare(b.date) ||
-                       a.name.localeCompare(b.name);
-        }
-    });
-
-    return records;
-}
-
-// DISPLAY RECORDS
-function loadRecords() {
-    const records = getSortedRecords();
-    const tbody = document.getElementById("recordsBody");
-
-    tbody.innerHTML = "";
-
-    if (!records.length) {
-        tbody.innerHTML =
-            '<tr><td colspan="8" class="empty-row">No attendance records found.</td></tr>';
-
-        document.getElementById("monthlyTotal").textContent =
-            "Total Working Hours: 0.00";
-
-        return;
+    if (result.error) {
+      if (result.error.code === "23505") throw new Error("This employee already has an attendance record for this date.");
+      throw result.error;
     }
-
-    let totalHours = 0;
-
-    records.forEach((record, index) => {
-        totalHours += Number(record.hours) || 0;
-
-        const tr = document.createElement("tr");
-
-        const values = [
-            index + 1,
-            record.name,
-            record.date,
-            record.timeIn || "—",
-            record.timeOut || "—",
-            Number(record.hours || 0).toFixed(2)
-        ];
-
-        values.forEach(value => {
-            const td = document.createElement("td");
-            td.textContent = value;
-            tr.appendChild(td);
-        });
-
-        // REMARKS AFTER TOTAL HOURS
-        const remarksCell = document.createElement("td");
-        const badge = document.createElement("span");
-
-        badge.className = "status " + record.remarks;
-        badge.textContent = record.remarks;
-
-        remarksCell.appendChild(badge);
-        tr.appendChild(remarksCell);
-
-        // ACTION BUTTONS
-        const actionCell = document.createElement("td");
-
-        const editButton = document.createElement("button");
-        editButton.className = "btn-warning small-btn";
-        editButton.textContent = "Edit";
-        editButton.onclick = () => editRecord(record.id);
-
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "btn-danger small-btn";
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = () => deleteRecord(record.id);
-
-        actionCell.append(editButton, deleteButton);
-        tr.appendChild(actionCell);
-
-        tbody.appendChild(tr);
-    });
-
-    document.getElementById("monthlyTotal").textContent =
-        "Total Working Hours: " + totalHours.toFixed(2);
-}
-
-// EDIT RECORD
-function editRecord(id) {
-    const record = getRecords().find(r => r.id === id);
-
-    if (!record) return;
-
-    editingRecordId = id;
-
-    document.getElementById("empName").value = record.name;
-    document.getElementById("date").value = record.date;
-    document.getElementById("timeIn").value = record.timeIn || "";
-    document.getElementById("timeOut").value = record.timeOut || "";
-    document.getElementById("remarks").value = record.remarks;
-
-    handleRemarksChange();
-
-    document.getElementById("saveButton").textContent = "Update Attendance";
-    document.getElementById("formTitle").textContent = "Edit Attendance Record";
-
-    document.querySelectorAll(".card")[1].scrollIntoView({
-        behavior: "smooth"
-    });
-}
-
-// DELETE RECORD
-function deleteRecord(id) {
-    if (!confirm("Delete this attendance record?")) return;
-
-    const records = getRecords().filter(r => r.id !== id);
-
-    saveRecords(records);
-    loadRecords();
-}
-
-// CLEAR FORM
-function clearForm() {
     editingRecordId = null;
-
-    document.getElementById("empName").value = "";
-    document.getElementById("date").value = "";
-    document.getElementById("remarks").value = "PRESENT";
-    document.getElementById("timeIn").value = "";
-    document.getElementById("timeOut").value = "";
-
-    document.getElementById("saveButton").textContent = "Save Attendance";
-    document.getElementById("formTitle").textContent = "Attendance Entry";
-
-    handleRemarksChange();
-}
-
-// CLEAR MONTH
-function clearMonth() {
-    if (!confirm(
-        "Delete ALL attendance records for " + months[currentMonth] + "?"
-    )) return;
-
-    localStorage.removeItem("dtr_" + currentMonth);
-
-    editingRecordId = null;
+    await loadRecords();
     clearForm();
-    loadRecords();
-
-    alert("Monthly attendance records cleared.");
+    alert("Attendance successfully saved to the cloud database.");
+  } catch(error) { alert("Could not save attendance: " + error.message); }
+  finally { $("saveButton").disabled = false; }
 }
-
-// PDF EXPORT
+function editRecord(record) {
+  editingRecordId = record.id;
+  $("empName").value = record.employee_id || "";
+  $("date").value = record.work_date;
+  $("timeIn").value = record.time_in || "";
+  $("timeOut").value = record.time_out || "";
+  $("remarks").value = record.remarks;
+  handleRemarksChange();
+  $("saveButton").textContent = "Update Attendance";
+  $("formTitle").textContent = "Edit Attendance Record";
+  document.querySelectorAll(".card")[2].scrollIntoView({behavior:"smooth"});
+}
+async function deleteRecord(id) {
+  if (!confirm("Delete this attendance record?")) return;
+  try {
+    const { error } = await supabaseClient.from("attendance").delete().eq("id",id);
+    if (error) throw error;
+    await loadRecords();
+  } catch(error) { alert("Could not delete record: " + error.message); }
+}
+function clearForm() {
+  editingRecordId = null;
+  $("empName").value = ""; $("date").value = localDateString();
+  $("remarks").value = "PRESENT"; $("timeIn").value = ""; $("timeOut").value = "";
+  $("saveButton").textContent = "Save Attendance";
+  $("formTitle").textContent = "Attendance Entry";
+  handleRemarksChange();
+}
+async function clearMonth() {
+  if (!confirm("Delete ALL attendance records for " + months[currentMonth] + " " + currentYear + "? This cannot be undone.")) return;
+  try {
+    const start = currentYear + "-" + String(currentMonth+1).padStart(2,"0") + "-01";
+    const end = currentMonth === 11 ? (currentYear+1)+"-01-01" : currentYear+"-"+String(currentMonth+2).padStart(2,"0")+"-01";
+    const { error } = await supabaseClient.from("attendance").delete().gte("work_date",start).lt("work_date",end);
+    if (error) throw error;
+    editingRecordId = null; clearForm(); await loadRecords();
+    alert("Monthly attendance records cleared from the cloud database.");
+  } catch(error) { alert("Could not clear month: " + error.message); }
+}
 function exportPDF() {
-    const records = getSortedRecords();
-
-    if (!records.length) {
-        alert("No records available to export.");
-        return;
-    }
-
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-        alert("PDF library could not load. Please check your internet connection.");
-        return;
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("landscape");
-
-    doc.setFontSize(18);
-    doc.text("DAILY TIME RECORD", 14, 15);
-
-    doc.setFontSize(11);
-    doc.text("Month: " + months[currentMonth], 14, 23);
-
-    const selectedEmployee =
-        document.getElementById("filterEmployee").value;
-
-    doc.text(
-        "Employee: " +
-        (selectedEmployee === "all" ? "All Employees" : selectedEmployee),
-        14,
-        28
-    );
-
-    const tableData = records.map((record, index) => [
-        index + 1,
-        record.name,
-        record.date,
-        record.timeIn || "—",
-        record.timeOut || "—",
-        Number(record.hours || 0).toFixed(2),
-        record.remarks
-    ]);
-
-    const totalHours = records.reduce(
-        (sum, record) => sum + (Number(record.hours) || 0),
-        0
-    );
-
-    doc.autoTable({
-        startY: 34,
-        head: [[
-            "#",
-            "Employee Name",
-            "Date",
-            "Time In",
-            "Time Out",
-            "Total Hours",
-            "Remarks"
-        ]],
-        body: tableData,
-        theme: "grid",
-        styles: {
-            fontSize: 9,
-            cellPadding: 3
-        },
-        headStyles: {
-            fillColor: [23, 59, 103]
-        }
-    });
-
-    doc.setFontSize(11);
-    doc.text(
-        "Total Working Hours: " + totalHours.toFixed(2),
-        14,
-        doc.lastAutoTable.finalY + 10
-    );
-
-    const fileName = selectedEmployee === "all"
-        ? "DTR_" + months[currentMonth] + ".pdf"
-        : "DTR_" + selectedEmployee.replace(/[^a-z0-9]/gi, "_") +
-          "_" + months[currentMonth] + ".pdf";
-
-    doc.save(fileName);
+  const records = getSortedRecords();
+  if (!records.length) return alert("No records available to export.");
+  if (!window.jspdf || !window.jspdf.jsPDF) return alert("PDF library could not load. Check your internet connection.");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("landscape");
+  doc.setFontSize(18); doc.text("DAILY TIME RECORD",14,15);
+  doc.setFontSize(11); doc.text("Month: " + months[currentMonth] + " " + currentYear,14,23);
+  const filter = $("filterEmployee").value;
+  const employeeName = filter === "all" ? "All Employees" : (employees.find(e=>e.id===filter)?.name || "Selected Employee");
+  doc.text("Employee: " + employeeName,14,28);
+  const body = records.map((r,i)=>[i+1,r.employee_name,r.work_date,r.time_in||"—",r.time_out||"—",(Number(r.total_hours)||0).toFixed(2),r.remarks]);
+  const total = records.reduce((sum,r)=>sum+(Number(r.total_hours)||0),0);
+  doc.autoTable({
+    startY:34,
+    head:[["#","Employee Name","Date","Time In","Time Out","Total Hours","Remarks"]],
+    body,theme:"grid",styles:{fontSize:9,cellPadding:3},
+    headStyles:{fillColor:[23,59,103]}
+  });
+  doc.setFontSize(11); doc.text("Total Working Hours: "+total.toFixed(2),14,doc.lastAutoTable.finalY+10);
+  const safeName = employeeName === "All Employees" ? "All_Employees" : employeeName.replace(/[^a-z0-9]/gi,"_");
+  doc.save("DTR_"+safeName+"_"+months[currentMonth]+"_"+currentYear+".pdf");
 }
 
-// EVENT LISTENERS
-document.getElementById("timeIn").addEventListener("input", calculateHours);
-document.getElementById("timeOut").addEventListener("input", calculateHours);
-
-// INITIALIZE
-function initialize() {
-    const today = new Date();
-
-    document.getElementById("date").value =
-        today.getFullYear() + "-" +
-        String(today.getMonth() + 1).padStart(2, "0") + "-" +
-        String(today.getDate()).padStart(2, "0");
-
-    loadEmployees();
+async function initializeApp(session) {
+  setAuthenticatedUI(session);
+  if (!session) return;
+  try {
+    await loadEmployees();
+    await loadRecords();
     buildMonthTabs();
     updateMonthLabel();
-    handleRemarksChange();
-    loadRecords();
+    clearForm();
+  } catch(error) {
+    alert("Database connection error: " + error.message + ". Check that the SQL tables and RLS policies have been created.");
+  }
 }
 
-initialize();
-</script>
+$("authForm").addEventListener("submit",signInOrSignUp);
+$("toggleAuth").addEventListener("click",toggleAuthMode);
+$("logoutButton").addEventListener("click",async()=>{
+  const {error}=await supabaseClient.auth.signOut();
+  if(error) alert("Sign out failed: "+error.message);
+});
+$("registerButton").addEventListener("click",registerEmployee);
+$("saveButton").addEventListener("click",saveRecord);
+$("clearFormButton").addEventListener("click",clearForm);
+$("clearMonthButton").addEventListener("click",clearMonth);
+$("exportButton").addEventListener("click",exportPDF);
+$("remarks").addEventListener("change",handleRemarksChange);
+$("timeIn").addEventListener("input",calculateHours);
+$("timeOut").addEventListener("input",calculateHours);
+$("filterEmployee").addEventListener("change",renderRecords);
+$("sortRecords").addEventListener("change",renderRecords);
+$("yearSelect").addEventListener("change",async()=>{
+  currentYear=Number($("yearSelect").value);
+  editingRecordId=null; buildMonthTabs(); updateMonthLabel(); clearForm(); await loadRecords();
+});
 
+supabaseClient.auth.onAuthStateChange((_event,session)=>{
+  setAuthenticatedUI(session);
+  if(session) setTimeout(()=>initializeApp(session),0);
+});
+(async()=>{
+  const {data,error}=await supabaseClient.auth.getSession();
+  if(error){showNotice("authNotice",error.message);return;}
+  if(data.session) await initializeApp(data.session);
+  else setAuthenticatedUI(null);
+  $("date").value=localDateString();
+  buildMonthTabs();
+  updateMonthLabel();
+  handleRemarksChange();
+})();
+</script>
 </body>
 </html>
